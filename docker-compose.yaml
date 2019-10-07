@@ -1,0 +1,27 @@
+version: "3"
+services:
+  console:
+    build: .
+    image: k8s-infra-cli
+    # network mode host to allow container to address localhost on host
+    network_mode: host
+    volumes: 
+      # mount the local project directory into the containers working directory
+      - .:/project
+      # mount the local kubeconfig file into the container for working with local cluster
+      - ~/.kube/config:/root/.kube/config
+      # mount the local aws config directory into the container for shared access
+      - ~/.aws:/root/.aws
+      # mount the local gcloud config directory into the container for shared access
+      - ~/.config/gcloud:/root/.config/gcloud
+    environment:
+      # the terraform platform directory to scope
+      PLATFORM: $PLATFORM
+      # the environment for the terraform directory to scope variables and backends
+      ENVIRONMENT: $ENVIRONMENT
+      # default config to use for gcloud cli
+      GOOGLE_APPLICATION_CREDENTIALS: $GOOGLE_APPLICATION_CREDENTIALS
+      # default config to use for aws cli
+      AWS_PROFILE: $AWS_PROFILE
+      # default config to use for az cli
+      ASM_SUBSCRIPTION_ID: $ASM_SUBSCRIPTION_ID

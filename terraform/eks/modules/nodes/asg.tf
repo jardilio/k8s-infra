@@ -30,7 +30,7 @@ data "aws_ami" "eks" {
   owners = ["602401143452"] # Amazon EKS AMI Account ID
 }
 
-resource "nul_resource" "tags" {
+resource "null_resource" "tags" {
     
 }
 

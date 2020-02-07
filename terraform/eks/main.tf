@@ -1,7 +1,7 @@
 
 
 module "cluster" {
-    source = "./modules/aws/cluster"
+    source = "./modules/cluster"
     name = "${var.cluster_name}"
     cidr = "${var.network_cidr}"
     data_centers = "${var.network_data_centers}"
@@ -13,7 +13,7 @@ module "cluster" {
 }
 
 module "pci_isoseg" {
-    source = "./modules/aws/nodes"
+    source = "./modules/nodes"
     name = "pci_isoseg"
     cluster = "${module.cluster.id}"
     instance_image = "${var.pci_isoseg_instance_image}"

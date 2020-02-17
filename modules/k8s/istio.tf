@@ -9,6 +9,7 @@ resource "kubernetes_namespace" "istio" {
 }
 
 resource "helm_release" "istio_init" {
+    count = 0 # disabled for now
     repository = "https://storage.googleapis.com/istio-release/releases/${local.istio_version}/charts/"
     chart = "istio-init"
     name = "istio-init"
@@ -16,6 +17,7 @@ resource "helm_release" "istio_init" {
 }
 
 resource "null_resource" "istio_crds" {
+    count = 0 # disabled for now
     depends_on = ["helm_release.istio_init"]
     triggers = {
         istio_version = "${local.istio_version}"

@@ -3,6 +3,22 @@ variable "region" {
     description = "The region the cluster will be associated with"
 }
 
+variable "name" {
+    type = "string"
+    description = "The name to give the cluster"
+}
+
+variable "kubernetes_version" {
+    type = "string"
+    description = "The version of kubernetes to setup"
+}
+
+variable "zones" {
+    type = "list"
+    default = []
+    description = "The zones to put the cluster in"
+}
+
 variable "tags" {
     type = "map"
     description = "A set of tags to apply to all resources for tracking purposes"
@@ -11,16 +27,6 @@ variable "tags" {
 variable "cluster_cidr" {
     type = "string"
     description = "The CIDR block to associate with the network that will be created"
-}
-
-variable "cluster_name" {
-    type = "string"
-    description = "The name to give the cluster, must be unique per region"
-}
-
-variable "cluster_kubernetes" {
-    type = "string"
-    description = "The version of kubernetes to run"
 }
 
 variable "cluster_instance_image" {

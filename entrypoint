@@ -6,21 +6,7 @@ RED_ERR="\e[91m\xE2\x9C\x98\e[0m"
 BLU_INFO="\e[34m\xE2\x84\xB9\e[0m"
 YEL_WARN="\e[33m\xE2\x9A\xA0\e[0m"
 
-if [ -z "$PLATFORM" ]
-then
-    printf "$BLU_INFO Set environment variable PLATFORM to avoid prompt\n"
-    PS3='Please the target platform: '
-    select PLATFORM in $(ls terraform)
-    do
-        export PLATFORM
-        break
-    done
-else
-    printf "$GRN_CHK Found environment variable PLATFORM set to '$PLATFORM'\n"
-fi
-
-printf "$BLU_INFO Setting terraform working directory to 'terraform/$PLATFORM'\n"
-cd terraform/$PLATFORM
+cd /project
 
 if [ -z "$ENVIRONMENT" ] && [ -d environments ]
 then
@@ -38,37 +24,7 @@ else
     printf "$GRN_CHK Found environment variable ENVIRONMENT set to '$ENVIRONMENT'\n"
 fi
 
-if [ ! -z "$ENVIRONMENT" ]
-then 
-    VAR_FILE="$BASEDIR/terraform/$PLATFORM/environments/$ENVIRONMENT/variables.tfvars"
-    BACKEND_FILE="$BASEDIR/terraform/$PLATFORM/environments/$ENVIRONMENT/backend.tfvars"
-
-    printf "$BLU_INFO Setting TF_DATA_DIR=\"$BASEDIR/terraform/$PLATFORM/environments/$ENVIRONMENT/.terraform\""
-    export TF_DATA_DIR="$BASEDIR/terraform/$PLATFORM/environments/$ENVIRONMENT/.terraform"
-
-    if [ -f "$VAR_FILE" ]
-    then
-        printf "$GRN_CHK Found environment variables file '$VAR_FILE'\n"
-        printf "$BLU_INFO Setting TF_CLI_ARGS_*=\"-var-file=$VAR_FILE\"\n"
-
-        export TF_CLI_ARGS_plan="-var-file=$VAR_FILE"
-        export TF_CLI_ARGS_apply="-var-file=$VAR_FILE"
-        export TF_CLI_ARGS_destroy="-var-file=$VAR_FILE"
-        export TF_CLI_ARGS_refresh="-var-file=$VAR_FILE"
-    else
-        printf "$RED_ERR Variables file '$VAR_FILE' is missing...no TF_CLI_ARGS_* variables set\n"
-    fi
-
-    if [ -f "$BACKEND_FILE" ]
-    then
-        printf "$GRN_CHK Found environment backend file '$BACKEND_FILE'\n"
-        printf "$BLU_INFO Setting TF_CLI_ARGS_init=\"-backend-config=$BACKEND_FILE\"\n"
-
-        export TF_CLI_ARGS_init="-backend-config=$BACKEND_FILE"
-    else
-        printf "$RED_ERR Backend file '$BACKEND_FILE' is missing...TF_CLI_ARGS_init will not be set\n"
-    fi
-fi
+[ -d "environments/$ENVIRONMENT" ] && cd environments/$ENVIRONMENT
 
 if [ ! -z "$AWS_PROFILE" ]
 then
@@ -86,8 +42,14 @@ then
     printf "$BLU_INFO Found GOOGLE_APPLICATION_CREDENTIALS but doesn't point to a file...writing value to temp and redirecting for terraform and console compatibility\n"
     echo $GOOGLE_APPLICATION_CREDENTIALS > /tmp/gcp_creds.json
     export GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp_creds.json
+fi
+
+if [ -f "$GOOGLE_APPLICATION_CREDENTIALS" ]
+then
+    printf "$BLU_INFO Found GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS...initializing gcloud cli\n"
     gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
 fi
+
 
 if [ ! -z "$ASM_SUBSCRIPTION_ID" ]
 then

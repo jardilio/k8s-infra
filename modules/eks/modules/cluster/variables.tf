@@ -8,9 +8,18 @@ variable "cidr" {
     description = "The CIDR block to associate with the network that will be created"
 }
 
-variable "subnets" {
-    default = 3
-    description = "The number of subnets to create in the network"
+variable "public_cidr" {
+    description = "The CIDR block in 'cidr' used for public space (default is first half of cidr)"
+}
+
+variable "private_cidr" {
+    description = "The CIDR block in 'cidr' used for private space (default is second half of cidr)"
+}
+
+variable "zones" {
+    type = "list"
+    default = []
+    description = "The zones to put the cluster in"
 }
 
 variable "private" {

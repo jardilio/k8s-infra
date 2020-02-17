@@ -1,6 +1,7 @@
 version: "3"
 services:
-  console:
+
+  console: &common-service
     build: .
     image: k8s-infra-cli
     # network mode host to allow container to address localhost on host
@@ -15,8 +16,6 @@ services:
       # mount the local gcloud config directory into the container for shared access
       - ~/.config/gcloud:/root/.config/gcloud
     environment:
-      # the terraform platform directory to scope
-      PLATFORM: $PLATFORM
       # the environment for the terraform directory to scope variables and backends
       ENVIRONMENT: $ENVIRONMENT
       # default config to use for gcloud cli
@@ -25,3 +24,15 @@ services:
       AWS_PROFILE: $AWS_PROFILE
       # default config to use for az cli
       ASM_SUBSCRIPTION_ID: $ASM_SUBSCRIPTION_ID
+
+  plan:
+    << : *common-service
+    command: terraform plan -out=apply.tfplan
+
+  apply:
+    << : *common-service
+    command: terraform apply -auto-approve apply.tfplan
+
+  destroy:
+    << : *common-service
+    command: terraform plan -out=apply.tfplan -destroy

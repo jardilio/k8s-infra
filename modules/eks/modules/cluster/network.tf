@@ -62,23 +62,23 @@ resource "aws_route_table" "public" {
 
 resource "aws_route_table_association" "public" {
   count = "${length(var.zones)}"
-  subnet_id = "${element(aws_subnet.network.*.id, count.index)}"
-  route_table_id = "${aws_route_table.network.id}"
-  tags = "${merge(var.tags, map("Name", "${var.name}-public"))}"
+  subnet_id = "${element(aws_subnet.network_public.*.id, count.index)}"
+  route_table_id = "${aws_route_table.public.id}"
+  # tags = "${merge(var.tags, map("Name", "${var.name}-public"))}"
 }
 
 resource "aws_route_table" "private" {
   vpc_id = "${aws_vpc.network.id}"
   route {
     cidr_block = "0.0.0.0/0"
-    nat_gateway_id = "${aws_nat_internet_gateway.network.id}"
+    nat_gateway_id = "${aws_internet_gateway.network.id}"
   }
-  tags = "${merge(var.tags, map("Name", "${var.name}-private"))}"
+  # tags = "${merge(var.tags, map("Name", "${var.name}-private"))}"
 }
 
 resource "aws_route_table_association" "private" {
   count = "${length(var.zones)}"
-  subnet_id = "${element(aws_subnet.network.*.id, count.index)}"
-  route_table_id = "${aws_route_table.network.id}"
-  tags = "${merge(var.tags, map("Name", "${var.name}-private"))}"
+  subnet_id = "${element(aws_subnet.network_private.*.id, count.index)}"
+  route_table_id = "${aws_route_table.private.id}"
+  # tags = "${merge(var.tags, map("Name", "${var.name}-private"))}"
 }

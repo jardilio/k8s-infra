@@ -1,5 +1,6 @@
 variable "tags" {
     type = "map"
+    default = {}
     description = "A set of tags to apply to all resources for tracking purposes"
 }
 
@@ -9,10 +10,12 @@ variable "cidr" {
 }
 
 variable "public_cidr" {
+    default = ""
     description = "The CIDR block in 'cidr' used for public space (default is first half of cidr)"
 }
 
 variable "private_cidr" {
+    default = ""
     description = "The CIDR block in 'cidr' used for private space (default is second half of cidr)"
 }
 
@@ -51,4 +54,9 @@ variable "instance_type" {
 variable "instance_count" {
     type = "string"
     description = "The number of worker nodes to run"
+}
+
+locals {
+    security_group_ids = ["${aws_security_group.cluster.id}"]
+    subnet_ids = ["${aws_subnet.network_public.*.id}"]
 }

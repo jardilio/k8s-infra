@@ -1,5 +1,5 @@
 locals {
-  ami = "${var.instance_image == "" ? data.aws_eks_cluster.eks.id : var.instance_image}"
+  ami = "${var.instance_image == "" ? data.aws_ami.eks.id : var.instance_image}"
   userdata = <<USERDATA
 #!/bin/bash
 set -o xtrace
@@ -9,7 +9,7 @@ USERDATA
 
 resource "aws_launch_configuration" "demo" {
   associate_public_ip_address = "${var.private ? false : true}"
-  iam_instance_profile = "${aws_iam_instance_profile.node.name}"
+  # iam_instance_profile = "${aws_iam_instance_profile.node.name}"
   image_id = "${local.ami}"
   instance_type = "${var.instance_type}"
   name_prefix = "${local.identifier}"

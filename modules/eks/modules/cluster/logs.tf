@@ -16,8 +16,8 @@ resource "aws_flow_log" "logs" {
   iam_role_arn = "${aws_iam_role.logs.arn}"
   log_destination = "${aws_cloudwatch_log_group.logs.arn}"
   traffic_type = "ALL"
-  vpc_id = "${aws_vpc.cluster.id}"
-  tags = "${var.tags}"
+  vpc_id = "${aws_vpc.network.id}"
+  # tags = "${var.tags}"
 }
 
 resource "aws_iam_role" "logs" {

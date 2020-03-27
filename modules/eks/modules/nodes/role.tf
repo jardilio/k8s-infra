@@ -1,5 +1,5 @@
 resource "aws_iam_role" "role" {
-  name = "${identifier}"
+  name = "${local.identifier}"
 
   assume_role_policy = <<POLICY
 {
@@ -34,7 +34,7 @@ resource "aws_iam_role_policy_attachment" "role_AmazonEC2ContainerRegistryReadOn
 }
 
 resource "aws_iam_instance_profile" "role" {
-  name = "${identifier}"
+  name = "${local.identifier}"
   role = "${aws_iam_role.role.name}"
-  tags = "${var.tags}"
+  # tags = "${var.tags}"
 }

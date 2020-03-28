@@ -35,7 +35,7 @@ resource "aws_eks_cluster" "cluster" {
 
   vpc_config {
     security_group_ids = ["${aws_security_group.cluster.id}"]
-    subnet_ids = ["${aws_subnet.network_public.*.id}"]
+    subnet_ids = aws_subnet.network_public.*.id
     endpoint_private_access = true
     endpoint_public_access = true
   }
@@ -44,6 +44,7 @@ resource "aws_eks_cluster" "cluster" {
     "aws_iam_role_policy_attachment.cluster_AmazonEKSClusterPolicy",
     "aws_iam_role_policy_attachment.cluster_AmazonEKSServicePolicy",
     "aws_cloudwatch_log_group.logs",
+    "aws_subnet.network_public"
   ]
 
   tags = "${var.tags}"

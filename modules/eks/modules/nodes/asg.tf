@@ -40,7 +40,7 @@ resource "aws_autoscaling_group" "nodes" {
   max_size = "${var.instance_count}"
   min_size = "${var.instance_count}"
   name = "${local.identifier}"
-  vpc_zone_identifier  = ["${local.cluster_subnets}"]
+  vpc_zone_identifier = local.cluster_subnets
 
   tag {
     key = "Name"

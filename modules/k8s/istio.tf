@@ -1,5 +1,7 @@
 locals {
-    istio_version = "1.3.1"
+    # https://github.com/istio/istio/releases/
+    istio_version = "1.5.1"
+    enabled = 1
 }
 
 resource "kubernetes_namespace" "istio" {
@@ -9,7 +11,8 @@ resource "kubernetes_namespace" "istio" {
 }
 
 resource "helm_release" "istio_init" {
-    count = 0 # disabled for now
+    depends_on = ["null_resource.helm_init"]
+    count = local.enabled
     repository = "https://storage.googleapis.com/istio-release/releases/${local.istio_version}/charts/"
     chart = "istio-init"
     name = "istio-init"
@@ -17,7 +20,7 @@ resource "helm_release" "istio_init" {
 }
 
 resource "null_resource" "istio_crds" {
-    count = 0 # disabled for now
+    count = local.enabled
     depends_on = ["helm_release.istio_init"]
     triggers = {
         istio_version = "${local.istio_version}"
@@ -29,6 +32,7 @@ resource "null_resource" "istio_crds" {
 }
 
 resource "helm_release" "istio" {
+    count = local.enabled
     depends_on = ["null_resource.istio_crds"]
     repository = "https://storage.googleapis.com/istio-release/releases/${local.istio_version}/charts/"
     chart = "istio"
@@ -64,6 +68,7 @@ resource "helm_release" "istio" {
 
     set {
         name = "prometheus.enabled"
+        # issue here gets stuck "Still modifying..."
         value = "false"
     }
 
@@ -84,6 +89,6 @@ resource "helm_release" "istio" {
 
     set {
         name = "grafana.enabled"
-        value = "false"
+        value = "true"
     }
 }

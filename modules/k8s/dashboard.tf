@@ -1,19 +1,25 @@
-resource "kubernetes_namespace" "dashboard" {
+resource "kubernetes_namespace" "kubernetes_dashboard" {
   metadata {
-    name = "dashboard"
+    name = "kubernetes-dashboard"
   }
 }
 
 resource "helm_release" "dashboard" {
-    chart = "kubernetes-dashboard"
+    depends_on = ["null_resource.helm_init", "helm_release.istio"]
+    chart = "stable/kubernetes-dashboard"
     name = "kubernetes-dashboard"
+    namespace = "${kubernetes_namespace.kubernetes_dashboard.metadata.0.name}"
     version = "1.10.0"
-    namespace = "${kubernetes_namespace.dashboard.metadata.0.name}"
 
     # https://github.com/helm/charts/tree/master/stable/kubernetes-dashboard
 
     set {
-        name = "enableSkipLogin"
-        value = "true"
+      name = "enableSkipLogin"
+      value = "true"
+    }
+
+    set {
+      name = "ingress.enabled"
+      value = "true"
     }
 }

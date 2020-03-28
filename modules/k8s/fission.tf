@@ -6,7 +6,7 @@ resource "kubernetes_namespace" "fission" {
 
 resource "helm_release" "fission" {
     count = 0 # disabled for now
-    depends_on = ["helm_release.istio"]
+    depends_on = ["null_resource.helm_init", "helm_release.istio"]
     repository = "https://raw.githubusercontent.com/fission/fission-charts/master/"
     chart = "fission-all"
     name = "fission"

@@ -5,7 +5,7 @@ resource "kubernetes_namespace" "kubernetes_dashboard" {
 }
 
 resource "helm_release" "dashboard" {
-    depends_on = ["null_resource.helm_init", "helm_release.istio"]
+    depends_on = ["helm_release.istio"]
     chart = "stable/kubernetes-dashboard"
     name = "kubernetes-dashboard"
     namespace = "${kubernetes_namespace.kubernetes_dashboard.metadata.0.name}"

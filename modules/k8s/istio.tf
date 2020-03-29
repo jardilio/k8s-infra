@@ -2,6 +2,7 @@ locals {
     # https://github.com/istio/istio/releases/
     istio_version = "1.5.1"
     enabled = 1
+    galley_enabled = false
 }
 
 resource "kubernetes_namespace" "istio" {
@@ -43,9 +44,25 @@ resource "helm_release" "istio" {
 
     # https://istio.io/docs/reference/config/installation-options/
 
+    # https://discuss.istio.io/t/running-without-galley-causes-istio-policy-and-istio-telemetry-crashloopbackoff-solved/2709/2
+    set {
+        name = "global.useMCP"
+        value = "${local.galley_enabled}"
+    }
+
+    set {
+        name = "galley.enabled"
+        value = "${local.galley_enabled}"
+    }
+
     set {
         name = "gateways.istio-ingressgateway.type"
         value = "${var.default_service_type}"
+    }
+
+    set {
+        name = "sidecarInjectorWebhook.enabled"
+        value = "false"
     }
 
     set {
@@ -54,32 +71,7 @@ resource "helm_release" "istio" {
     }
 
     set {
-        name = "gateways.istio-ingressgateway.autoscaleEnabled"
-        value = "false"
-    }
-
-    set {
-        name = "gateways.istio-ingressgateway.autoscaleMax"
-        value = "1"
-    }
-
-    set {
         name = "pilot.enabled"
-        value = "false"
-    }
-
-    set {
-        name = "pilot.autoscaleEnabled"
-        value = "false"
-    }
-
-    set { 
-        name = "pilot.autoscaleMax"
-        value = "1"
-    }
-
-    set {
-        name = "galley.enabled"
         value = "false"
     }
 
@@ -95,11 +87,6 @@ resource "helm_release" "istio" {
 
     set {
         name = "security.enabled"
-        value = "false"
-    }
-
-    set {
-        name = "sidecarInjectorWebhook.enabled"
         value = "false"
     }
 

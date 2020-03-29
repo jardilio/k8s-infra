@@ -25,7 +25,9 @@ provider "kubernetes" {
 }
 
 provider "helm" {
-    version = "~> 0.10"
+    # version 1+ using Helm 3, istio requires 2.x
+    # version = "~> 1.1"
+    version = "0.10.4"
     install_tiller = true
     kubernetes {
         load_config_file = true

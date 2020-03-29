@@ -29,11 +29,11 @@ resource "kubernetes_cluster_role_binding" "helm" {
 resource "null_resource" "helm_init" {
     depends_on = ["kubernetes_cluster_role_binding.helm"]
     triggers = {
-        # always trigger this to run and set our kubernetes context
+        # always trigger this to run to initialize helm
         timestamp = "${timestamp()}"
     }
     provisioner "local-exec" {
-        command = "helm init --service-account=tiller --wait"
+        command = "helm init --kube-context=${trimspace(data.local_file.kubecontext.content)} --service-account=tiller --wait --debug"
     } 
     provisioner "local-exec" {
         when = "destroy"

@@ -5,14 +5,14 @@ locals {
 }
 
 resource "kubernetes_namespace" "istio" {
-  metadata {
-    name = "istio-system"
-  }
+    metadata {
+        name = "istio-system"
+    }
 }
 
 resource "helm_release" "istio_init" {
+    count = "${local.enabled}"
     depends_on = ["null_resource.helm_init"]
-    count = local.enabled
     repository = "https://storage.googleapis.com/istio-release/releases/${local.istio_version}/charts/"
     chart = "istio-init"
     name = "istio-init"
@@ -20,7 +20,7 @@ resource "helm_release" "istio_init" {
 }
 
 resource "null_resource" "istio_crds" {
-    count = local.enabled
+    count = "${local.enabled}"
     depends_on = ["helm_release.istio_init"]
     triggers = {
         istio_version = "${local.istio_version}"
@@ -32,14 +32,21 @@ resource "null_resource" "istio_crds" {
 }
 
 resource "helm_release" "istio" {
-    count = local.enabled
+    count = "${local.enabled}"
     depends_on = ["null_resource.istio_crds"]
     repository = "https://storage.googleapis.com/istio-release/releases/${local.istio_version}/charts/"
     chart = "istio"
     name = "istio"
     namespace = "${kubernetes_namespace.istio.metadata.0.name}"
 
+    # timeout = 600
+
     # https://istio.io/docs/reference/config/installation-options/
+
+    set {
+        name = "gateways.istio-ingressgateway.type"
+        value = "${var.default_service_type}"
+    }
 
     set {
         name = "gateways.enabled"
@@ -47,13 +54,13 @@ resource "helm_release" "istio" {
     }
 
     set {
-        name = "galley.enabled"
+        name = "gateways.istio-ingressgateway.autoscaleEnabled"
         value = "false"
     }
 
     set {
-        name = "certmanager.enabled"
-        value = "false"
+        name = "gateways.istio-ingressgateway.autoscaleMax"
+        value = "1"
     }
 
     set {
@@ -62,18 +69,27 @@ resource "helm_release" "istio" {
     }
 
     set {
-        name = "gateways.istio-ingressgateway.type"
-        value = "${var.default_service_type}"
+        name = "pilot.autoscaleEnabled"
+        value = "false"
+    }
+
+    set { 
+        name = "pilot.autoscaleMax"
+        value = "1"
     }
 
     set {
-        name = "prometheus.enabled"
-        # issue here gets stuck "Still modifying..."
+        name = "galley.enabled"
         value = "false"
     }
 
     set {
-        name = "prometheus.service.nodePort.enabled"
+        name = "kiali.enabled"
+        value = "false"
+    }
+
+    set {
+        name = "prometheus.enabled"
         value = "false"
     }
 
@@ -89,6 +105,6 @@ resource "helm_release" "istio" {
 
     set {
         name = "grafana.enabled"
-        value = "true"
+        value = "false"
     }
 }

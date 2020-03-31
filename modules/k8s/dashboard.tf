@@ -2,6 +2,9 @@ resource "kubernetes_namespace" "kubernetes_dashboard" {
   depends_on = ["null_resource.istio"]
   metadata {
     name = "kubernetes-dashboard"
+    labels = {
+        istio-injection = "enabled"
+    }
   }
 }
 

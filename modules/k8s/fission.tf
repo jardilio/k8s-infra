@@ -2,6 +2,9 @@ resource "kubernetes_namespace" "fission" {
   depends_on = ["null_resource.istio"]
   metadata {
     name = "fission"
+    labels = {
+        istio-injection = "enabled"
+    }
   }
 }
 

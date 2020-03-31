@@ -1,6 +1,10 @@
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 spec:
+  values:
+    gateways:
+      istio-ingressgateway:
+        type: ${default_service_type}
   addonComponents:
     grafana:
       enabled: true
@@ -124,7 +128,7 @@ spec:
             maxSurge: 100%
             maxUnavailable: 25%
     sidecarInjector:
-      enabled: false
+      enabled: ${sidecar_injection_enabled}
       k8s:
         replicaCount: 1
         strategy:

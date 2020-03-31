@@ -6,16 +6,6 @@ resource "null_resource" "kubeconfig" {
     provisioner "local-exec" {
         command = "${var.kubeinit} && kubectl config current-context > .kubecontext"
     }
-    # provisioner "local-exec" {
-    #     command = "helm reset || true"
-    # } 
-    # provisioner "local-exec" {
-    #     command = "helm init --wait"
-    # } 
-    provisioner "local-exec" {
-        when = "destroy"
-        command = "helm reset --force || true"
-    } 
 }
 
 data "local_file" "kubecontext" {

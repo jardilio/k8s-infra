@@ -1,97 +1,56 @@
+# NOTE: Istio is moving away from helm and instead leveraging istioctl directly which is why we aren't using helm here
+
 locals {
-    # https://github.com/istio/istio/releases/
-    istio_version = "1.5.1"
-    enabled = 1
-    galley_enabled = false
+  istio_version = "1.5.1"
 }
 
+
+# use the namespace for clean-up on destroy
 resource "kubernetes_namespace" "istio" {
-    metadata {
-        name = "istio-system"
-    }
+  metadata {
+    name = "istio-system"
+  }
 }
 
-resource "helm_release" "istio_init" {
-    count = "${local.enabled}"
-    depends_on = ["null_resource.helm_init"]
-    repository = "https://storage.googleapis.com/istio-release/releases/${local.istio_version}/charts/"
-    chart = "istio-init"
-    name = "istio-init"
-    namespace = "${kubernetes_namespace.istio.metadata.0.name}"
+data "template_file" "istio" {
+  # generated with: `istioctl profile dump demo > istio.yaml`
+  # remove everything after "components" block or may get errors
+  template = "${file("${path.module}/istio.yaml")}"
+  vars = {
+    # Place vars here to interpolate template
+  }
 }
 
-resource "null_resource" "istio_crds" {
-    count = "${local.enabled}"
-    depends_on = ["helm_release.istio_init"]
+resource "null_resource" "istio" {
+    depends_on = [
+        "data.template_file.istio",
+        "data.local_file.kubecontext",
+        "kubernetes_namespace.istio"
+    ]
+
     triggers = {
+        template = "${data.template_file.istio.rendered}"
         istio_version = "${local.istio_version}"
     }
+
+    # install correct version requested
     provisioner "local-exec" {
-        # need to wait for CRD's to finish loading from init before proceeding
-        command = "sleep 60"
+        command = "cd /tmp && curl -L https://istio.io/downloadIstio | ISTIO_VERSION=${local.istio_version} sh -"
     }
-}
-
-resource "helm_release" "istio" {
-    count = "${local.enabled}"
-    depends_on = ["null_resource.istio_crds"]
-    repository = "https://storage.googleapis.com/istio-release/releases/${local.istio_version}/charts/"
-    chart = "istio"
-    name = "istio"
-    namespace = "${kubernetes_namespace.istio.metadata.0.name}"
-
-    # timeout = 600
-
-    # https://istio.io/docs/reference/config/installation-options/
-
-    # https://discuss.istio.io/t/running-without-galley-causes-istio-policy-and-istio-telemetry-crashloopbackoff-solved/2709/2
-    set {
-        name = "global.useMCP"
-        value = "${local.galley_enabled}"
+    provisioner "local-exec" {
+        command = "cp --force /tmp/istio-${local.istio_version}/bin/istioctl /usr/local/bin/"
     }
 
-    set {
-        name = "galley.enabled"
-        value = "${local.galley_enabled}"
+    # generate the ops file template
+    provisioner "local-exec" {
+        environment = {
+            TEMPLATE = "${data.template_file.istio.rendered}"
+        }
+        command = "echo \"$TEMPLATE\" > ${path.module}/istio.yaml.generated"
     }
 
-    set {
-        name = "gateways.istio-ingressgateway.type"
-        value = "${var.default_service_type}"
-    }
-
-    set {
-        name = "sidecarInjectorWebhook.enabled"
-        value = "false"
-    }
-
-    set {
-        name = "gateways.enabled"
-        value = "false"
-    }
-
-    set {
-        name = "pilot.enabled"
-        value = "false"
-    }
-
-    set {
-        name = "kiali.enabled"
-        value = "false"
-    }
-
-    set {
-        name = "prometheus.enabled"
-        value = "false"
-    }
-
-    set {
-        name = "security.enabled"
-        value = "false"
-    }
-
-    set {
-        name = "grafana.enabled"
-        value = "false"
+    # apply the changes to the cluster
+    provisioner "local-exec" {
+        command = "istioctl --verbose --context=${trimspace(data.local_file.kubecontext.content)} manifest apply -f ${path.module}/istio.yaml.generated --wait"
     }
 }

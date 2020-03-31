@@ -21,11 +21,12 @@ RUN curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v
     mv kubectl /usr/local/bin/  
 
 # Install helm cli for managing packages to install in k8s
-RUN curl -Lo helm.tar.gz https://get.helm.sh/helm-v2.14.3-linux-amd64.tar.gz && \
+RUN curl -Lo helm.tar.gz https://get.helm.sh/helm-v3.1.2-linux-amd64.tar.gz && \
     tar -zxvf helm.tar.gz && \
     chmod +x linux-amd64/helm && \
-    mv linux-amd64/helm /usr/local/bin/ && \
-    helm init --client-only
+    mv linux-amd64/helm /usr/local/bin/
+    # && \
+    # helm init --client-only
 
 # Install fission cli for managing FaaS in k8s
 RUN curl -Lo fission https://github.com/fission/fission/releases/download/1.4.1/fission-cli-linux && \
@@ -61,6 +62,10 @@ RUN curl -Lo packer.zip https://releases.hashicorp.com/packer/1.4.3/packer_1.4.3
 # Install common scripting toolss
 RUN apt-get install -y jq && \
     pip3 install --no-cache-dir --upgrade yq
+
+# Install Istio CLI
+RUN curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.5.1 sh -
+RUN cp istio-*/bin/istioctl /usr/local/bin/
     
 VOLUME [ "/project" ]
 WORKDIR /project

@@ -1,42 +1,14 @@
-resource "kubernetes_service_account" "helm" {
-  metadata {
-    name      = "tiller"
-    namespace = "kube-system"
-  }
-
-  automount_service_account_token = true
+locals {
+    helm_stable = "${data.helm_repository.stable.metadata[0].name}"
+    helm_incubator = "${data.helm_repository.incubator.metadata[0].name}"
 }
 
-resource "kubernetes_cluster_role_binding" "helm" {
-    depends_on = ["kubernetes_service_account.helm"]
-    metadata {
-        name = "tiller-binding"
-    }
-
-    subject {
-        kind      = "ServiceAccount"
-        name      = "tiller"
-        namespace = "kube-system"
-    }
-
-    role_ref {
-        kind      = "ClusterRole"
-        name      = "cluster-admin"
-        api_group = "rbac.authorization.k8s.io"
-    }
+data "helm_repository" "incubator" {
+  name = "incubator"
+  url  = "https://kubernetes-charts-incubator.storage.googleapis.com"
 }
 
-resource "null_resource" "helm_init" {
-    depends_on = ["kubernetes_cluster_role_binding.helm"]
-    triggers = {
-        # always trigger this to run to initialize helm
-        timestamp = "${timestamp()}"
-    }
-    provisioner "local-exec" {
-        command = "helm init --kube-context=${trimspace(data.local_file.kubecontext.content)} --service-account=tiller --wait --debug"
-    } 
-    provisioner "local-exec" {
-        when = "destroy"
-        command = "helm reset --force || true"
-    } 
+data "helm_repository" "stable" {
+  name = "stable"
+  url  = "https://kubernetes-charts.storage.googleapis.com/"
 }

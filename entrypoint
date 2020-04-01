@@ -8,23 +8,24 @@ YEL_WARN="\e[33m\xE2\x9A\xA0\e[0m"
 
 cd /project
 
-if [ -z "$ENVIRONMENT" ] && [ -d environments ]
+if [ -z "$CLUSTER" ] && [ -d clusters ]
 then
-    printf "$BLU_INFO Set environment variable ENVIRONMENT to avoid prompt\n"
-    PS3='Please the target environment: '
-    select ENVIRONMENT in $(ls environments)
+    cd clusters
+    printf "$BLU_INFO Set cluster variable CLUSTER to avoid prompt\n"
+    PS3='Please the target cluster: '
+    select CLUSTER in $(ls -d */)
     do
-        export ENVIRONMENT
+        export CLUSTER=${CLUSTER::-1}
         break
     done
-elif [ ! -d environments ]
+elif [ ! -d clusters ]
 then
-    printf "$YEL_WARN Platform $PLATFORM has no environments directory...no configurations will be loaded\n"
+    printf "$YEL_WARN No clusters directory...no configurations will be loaded\n"
 else
-    printf "$GRN_CHK Found environment variable ENVIRONMENT set to '$ENVIRONMENT'\n"
+    printf "$GRN_CHK Found cluster variable CLUSTER set to '$CLUSTER'\n"
 fi
 
-[ -d "environments/$ENVIRONMENT" ] && cd environments/$ENVIRONMENT
+[ -d "/project/clusters/$CLUSTER" ] && cd /project/clusters/$CLUSTER
 
 if [ ! -z "$AWS_PROFILE" ]
 then

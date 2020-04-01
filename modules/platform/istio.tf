@@ -27,7 +27,7 @@ resource "null_resource" "istio_cleanup" {
         on_failure = "continue"
         environment = {
             TEMPLATE = "${data.template_file.istio.rendered}"
-            CONTEXT = "${trimspace(data.local_file.kubecontext.content)}"
+            CONTEXT = "${local.kubecontext}"
         }
         command = <<EOT
             MANIFEST=$(echo "$TEMPLATE" | istioctl --context=$CONTEXT manifest generate -f -)
@@ -74,7 +74,7 @@ resource "null_resource" "istio" {
     provisioner "local-exec" {
         environment = {
             TEMPLATE = "${data.template_file.istio.rendered}"
-            CONTEXT = "${trimspace(data.local_file.kubecontext.content)}"
+            CONTEXT = "${local.kubecontext}"
         }
         command = "echo \"$TEMPLATE\" | istioctl --context=$CONTEXT manifest apply -f -"
     }

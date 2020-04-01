@@ -12,3 +12,7 @@ data "local_file" "kubecontext" {
     depends_on = ["null_resource.kubeconfig"]
     filename = ".kubecontext"
 }
+
+locals {
+    kubecontext = "${trimspace(data.local_file.kubecontext.content)}"
+}

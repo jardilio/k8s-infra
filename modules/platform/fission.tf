@@ -18,15 +18,15 @@ resource "helm_release" "fission" {
 
     # https://github.com/fission/fission/tree/master/charts#configuration
 
-    set {
-        name = "serviceType"
-        value = "${var.default_service_type}"
-    }
+    # set {
+    #     name = "serviceType"
+    #     value = "${var.default_service_type}"
+    # }
 
-    set {
-        name = "routerServiceType"
-        value = "${var.default_service_type}"
-    }
+    # set {
+    #     name = "routerServiceType"
+    #     value = "${var.default_service_type}"
+    # }
 
     set {
         name = "enableIstio"

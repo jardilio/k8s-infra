@@ -1,0 +1,3 @@
+This directory contains the modules to build up the supporting infrastructure for a cluster. This provides support for deploying a kubernetes cluster on the major cloud platforms. 
+
+Each module must requires exactly 1 common output: `kubeinit`. The `kubeinit` output from the infra module is then used as the `kubeinit` input into the platform module to initialize the kubectl and providers. This command will be executed and should configure the kubectl to initialize and target the given cluster. The platform module will execute that and then determine the kubecontext based on what was initialized.

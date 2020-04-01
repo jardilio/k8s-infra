@@ -16,8 +16,8 @@ services:
       # mount the local gcloud config directory into the container for shared access
       - ~/.config/gcloud:/root/.config/gcloud
     environment:
-      # the environment for the terraform directory to scope variables and backends
-      ENVIRONMENT: $ENVIRONMENT
+      # the cluster for the terraform directory to scope variables and backends
+      CLUSTER: $CLUSTER
       # default config to use for gcloud cli
       GOOGLE_APPLICATION_CREDENTIALS: $GOOGLE_APPLICATION_CREDENTIALS
       # default config to use for aws cli

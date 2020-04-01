@@ -11,7 +11,5 @@ and provide the context name of the target cluster.
 
 Be sure to set enough CPU and memory to docker, see https://istio.io/docs/setup/platform-setup/docker/
 
-Also be sure to enable SDS: https://github.com/linkerd/linkerd2/issues/3260#issuecomment-525063791
-
 * [inputs](./variables.tf)
 * [outputs](./outputs.tf)

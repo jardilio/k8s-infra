@@ -21,9 +21,4 @@ resource "helm_release" "dashboard" {
       name = "enableSkipLogin"
       value = "true"
     }
-
-    set {
-      name = "ingress.enabled"
-      value = "true"
-    }
 }

@@ -8,25 +8,37 @@ then populate the cluster with common tools and applications, including:
 This project makes use of a local docker image which contains all the required CLI tools to work with this project and 
 a custom entry point to initialize the CLI tools for your target environment. 
 
-# Environments
+# Clusters
 
-Create additional environments in the `environments` directory, this is just a main entry point for your terraform
-that will link to the appropriate terraform modules. Examples were included for each platform, including:
+Create additional clusters in the `cluster` directory, this is just a main entry point for your terraform
+that will link to the appropriate terraform modules. Examples were included for each provider, including:
 
-* [docker-desktop](./environments/docker-desktop_example) - Run on a local kubernetes cluster, usually for local development with docker desktop
-* [eks](./environments/eks_example) - Create and manage a remote EKS cluster on Amazon Web Services
-* [gke](./environments/gke_example) - Create and manage a remote GKE cluster on Google Cloud Platform
-* [aks](./environments/aks_example) - Create and manage a remote AKS cluster on Azure
+* [docker-desktop](./clusters/docker-desktop_example) - Run on a local kubernetes cluster, usually for local development with docker desktop
+* [eks](./clusters/eks_example) - Create and manage a remote EKS cluster on Amazon Web Services
+* [gke](./clusters/gke_example) - Create and manage a remote GKE cluster on Google Cloud Platform
+* [aks](./clusters/aks_example) - Create and manage a remote AKS cluster on Azure
 
 # Getting Started
 
 * Install Docker - https://docs.docker.com/docker-for-mac/install/
-* Check the readme for your target `environment` to initialize your machine the first time
-* Start the container - `docker-compose run --rm console`
-* Select the target environment when prompted (select `none` to just get the CLI tools without targeting)
-* Run `terraform apply` to deploy the default configurations
+* Set your local environment variables - you can store these in `.env`
+    * CLUSTER - The name of the cluster directory to target (ie `docker-desktop_example`)
+    * GOOGLE_APPLICATION_CREDENTIALS - (if using GCP) See [here](./modules/infra/gke)
+    * AWS_PROFILE - (if using AWS) See [here](./modules/infra/eks)
+    * ASM_SUBSCRIPTION_ID - (if using Azure) See [here](./modules/infra/aks)
+* Start the console - `docker-compose run --rm console`
+* Select your cluster - Optional if you set environment variable `CLUSTER`
+* Deploy your cluster - `terraform apply -auto-approve`
+* View your cluster - `echo "http://$(kubectl get service istio-ingressgateway -n istio-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')/productpage"`
 
 From there you can modify the source terraform files and run a new apply. 
+
+Additional docker-compose services are created for automation, including:
+
+* `docker-compose run --rm console` - Initialize the cluster and all the CLI tools and provide the user a console for manual input
+* `docker-compose run --rm plan` - Run a terraform plan of the changes for the current cluster and output a plan file
+* `docker-compose run --rm destroy` - Run a terraform plan to destroy current cluster and output a plan file
+* `docker-compose run --rm apply` - Run a terraform apply from the above plan or destroy
 
 # Debugging your services
 

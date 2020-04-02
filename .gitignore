@@ -1,5 +1,7 @@
 .terraform
 .env*
 *.tfstate*
+*.tfplan
 .kubeconfig
 .kubecontext
+*.generated

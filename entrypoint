@@ -1,0 +1,63 @@
+#!/bin/bash
+
+BASEDIR=$(dirname "$0")
+GRN_CHK="\e[92m\xE2\x9C\x93\e[0m"
+RED_ERR="\e[91m\xE2\x9C\x98\e[0m"
+BLU_INFO="\e[34m\xE2\x84\xB9\e[0m"
+YEL_WARN="\e[33m\xE2\x9A\xA0\e[0m"
+
+cd /project
+
+if [ -z "$CLUSTER" ] && [ -d clusters ]
+then
+    cd clusters
+    printf "$BLU_INFO Set cluster variable CLUSTER to avoid prompt\n"
+    PS3='Please the target cluster: '
+    select CLUSTER in $(ls -d */)
+    do
+        export CLUSTER=${CLUSTER::-1}
+        break
+    done
+elif [ ! -d clusters ]
+then
+    printf "$YEL_WARN No clusters directory...no configurations will be loaded\n"
+else
+    printf "$GRN_CHK Found cluster variable CLUSTER set to '$CLUSTER'\n"
+fi
+
+[ -d "/project/clusters/$CLUSTER" ] && cd /project/clusters/$CLUSTER
+
+if [ ! -z "$AWS_PROFILE" ]
+then
+    printf "$BLU_INFO Found AWS_PROFILE=$AWS_PROFILE...aws cli will use this by default\n"
+fi
+
+if [ ! -z "$CLOUDSDK_ACTIVE_CONFIG_NAME" ]
+then
+    printf "$BLU_INFO Found CLOUDSDK_ACTIVE_CONFIG_NAME=$CLOUDSDK_ACTIVE_CONFIG_NAME...initializing gcloud cli\n"
+    gcloud config configurations activate $CLOUDSDK_ACTIVE_CONFIG_NAME
+fi
+
+if [ ! -z "$GOOGLE_APPLICATION_CREDENTIALS" ] && [ ! -f "$GOOGLE_APPLICATION_CREDENTIALS" ]
+then
+    printf "$BLU_INFO Found GOOGLE_APPLICATION_CREDENTIALS but doesn't point to a file...writing value to temp and redirecting for terraform and console compatibility\n"
+    echo $GOOGLE_APPLICATION_CREDENTIALS > /tmp/gcp_creds.json
+    export GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp_creds.json
+fi
+
+if [ -f "$GOOGLE_APPLICATION_CREDENTIALS" ]
+then
+    printf "$BLU_INFO Found GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS...initializing gcloud cli\n"
+    gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+fi
+
+
+if [ ! -z "$ASM_SUBSCRIPTION_ID" ]
+then
+    printf "$BLU_INFO Found ASM_SUBSCRIPTION_ID=$ASM_SUBSCRIPTION_ID...initializing az cli\n"
+    az account set --subscription="$ASM_SUBSCRIPTION_ID"
+fi
+
+terraform init
+
+exec $@

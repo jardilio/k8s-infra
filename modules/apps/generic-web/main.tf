@@ -38,29 +38,25 @@ resource "kubernetes_deployment" "generic_web" {
             container_port = 80
           }
 
-          port {
-            container_port = 443
-          }
+          # port {
+          #   container_port = 443
+          # }
 
           resources {
-            limits {
-              cpu    = "0.5"
-              memory = "512Mi"
-            }
             requests {
-              cpu    = "250m"
-              memory = "50Mi"
+              cpu    = "125m"
+              memory = "20Mi"
             }
           }
 
-          # liveness_probe {
-          #   http_get {
-          #     path = "/"
-          #     port = 80
-          #   }
-          #   initial_delay_seconds = 10
-          #   period_seconds = 10
-          # }
+          liveness_probe {
+            http_get {
+              path = "/"
+              port = 80
+            }
+            initial_delay_seconds = 10
+            period_seconds = 10
+          }
         }
       }
     }
@@ -86,18 +82,18 @@ resource "kubernetes_service" "generic_web" {
       target_port = 80
     }
     
-    port {
-      name = "https"
-      port = 443
-      target_port = 443
-    }
+    # port {
+    #   name = "https"
+    #   port = 443
+    #   target_port = 443
+    # }
 
     type = "LoadBalancer"
   }
 }
 
 resource "kubernetes_horizontal_pod_autoscaler" "generic_web" {
-  depends_on = ["kubernetes_deployment.generic_web"]
+  # depends_on = ["kubernetes_deployment.generic_web"]
 
   metadata {
     name = "${var.app_name}"
@@ -108,6 +104,7 @@ resource "kubernetes_horizontal_pod_autoscaler" "generic_web" {
     max_replicas = "${var.max_instances}"
     min_replicas = "${var.min_instances}"
     scale_target_ref {
+      api_version = "apps/v1"
       kind = "Deployment"
       name = "${var.app_name}-${var.app_version}"
     }

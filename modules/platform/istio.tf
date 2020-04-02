@@ -2,12 +2,12 @@
 
 locals {
   istio_version = "1.5.1"
-  istio_bookinfo_enabled = 1
+  istio_bookinfo_enabled = 0
 }
 
-data "template_file" "istio" {
+data "template_file" "istio_ops" {
   # generated with: `istioctl profile dump demo > istio.yaml`
-  template = "${file("${path.module}/istio.yaml")}"
+  template = "${file("${path.module}/istio_ops.yaml")}"
   vars = {
     # Place any variables here for interpolation in the template between clusters
   }
@@ -17,7 +17,7 @@ resource "null_resource" "istio_cleanup" {
     # run the destroy separately from null_resource.istio...otherwise terraform runs destroy on trigger changes in null_resource.istio
 
     depends_on = [
-        "data.template_file.istio",
+        "data.template_file.istio_ops",
         "data.local_file.kubecontext"
     ]
 
@@ -26,7 +26,7 @@ resource "null_resource" "istio_cleanup" {
         when = "destroy"
         on_failure = "continue"
         environment = {
-            TEMPLATE = "${data.template_file.istio.rendered}"
+            TEMPLATE = "${data.template_file.istio_ops.rendered}"
             CONTEXT = "${local.kubecontext}"
         }
         command = <<EOT
@@ -45,13 +45,13 @@ resource "null_resource" "istio_cleanup" {
 
 resource "null_resource" "istio" {
     depends_on = [
-        "data.template_file.istio",
+        "data.template_file.istio_ops",
         "data.local_file.kubecontext",
         "null_resource.istio_cleanup"
     ]
 
     triggers = {
-        template = "${data.template_file.istio.rendered}"
+        template = "${data.template_file.istio_ops.rendered}"
         istio_version = "${local.istio_version}"
     }
 
@@ -73,7 +73,7 @@ resource "null_resource" "istio" {
     # apply the changes to the cluster
     provisioner "local-exec" {
         environment = {
-            TEMPLATE = "${data.template_file.istio.rendered}"
+            TEMPLATE = "${data.template_file.istio_ops.rendered}"
             CONTEXT = "${local.kubecontext}"
         }
         command = "echo \"$TEMPLATE\" | istioctl --context=$CONTEXT manifest apply -f -"

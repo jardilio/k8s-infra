@@ -29,7 +29,14 @@ that will link to the appropriate terraform modules. Examples were included for 
 * Start the console - `docker-compose run --rm console`
 * Select your cluster - Optional if you set environment variable `CLUSTER`
 * Deploy your cluster - `terraform apply -auto-approve`
-* View your cluster - `echo "http://$(kubectl get service istio-ingressgateway -n istio-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')/productpage"`
+* Get the address of your gateway - `GATEWAY=http://$(kubectl get service istio-ingressgateway -n istio-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')`
+
+By default, the following services should be available:
+
+* [Kubernetes Dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/): `$GATEWAY:15028`
+* [Kiali](https://kiali.io/): `$GATEWAY:15029`
+* [Prometheus](https://prometheus.io/): `$GATEWAY:15030`
+* [Grafana](https://grafana.com/): `$GATEWAY:15031`
 
 From there you can modify the source terraform files and run a new apply. 
 
@@ -39,32 +46,3 @@ Additional docker-compose services are created for automation, including:
 * `docker-compose run --rm plan` - Run a terraform plan of the changes for the current cluster and output a plan file
 * `docker-compose run --rm destroy` - Run a terraform plan to destroy current cluster and output a plan file
 * `docker-compose run --rm apply` - Run a terraform apply from the above plan or destroy
-
-# Debugging your services
-
-Use the `kubectl` to list all services in all namespaces:
-
-```
-kubectl get services --all-namespaces
-
-NAMESPACE              NAME                   TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                                  AGE
-default                kubernetes             ClusterIP   10.96.0.1        <none>        443/TCP                                  48m
-docker                 compose-api            ClusterIP   10.110.132.97    <none>        443/TCP                                  47m
-istio-system           grafana                ClusterIP   10.107.120.203   <none>        3000/TCP                                 3m28s
-istio-system           istio-policy           ClusterIP   10.96.210.110    <none>        9091/TCP,15004/TCP,15014/TCP             4m40s
-istio-system           istio-telemetry        ClusterIP   10.99.129.127    <none>        9091/TCP,15004/TCP,15014/TCP,42422/TCP   4m40s
-istio-system           prometheus             ClusterIP   10.97.91.177     <none>        9090/TCP                                 108s
-kube-system            kube-dns               ClusterIP   10.96.0.10       <none>        53/UDP,53/TCP,9153/TCP                   48m
-kube-system            tiller-deploy          ClusterIP   10.100.196.166   <none>        44134/TCP                                2m5s
-kubernetes-dashboard   kubernetes-dashboard   ClusterIP   10.106.245.131   <none>        443/TCP                                  6m42s
-```
-
-Then you can use the built-in proxy to expose those services on your host:
-
-```
-kubectl proxy
-
-Starting to serve on 127.0.0.1:8001
-```
-
-Now you can load your cluster resources from your host via the proxy http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:443/proxy/

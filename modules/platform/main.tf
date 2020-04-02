@@ -13,6 +13,12 @@ data "local_file" "kubecontext" {
     filename = ".kubecontext"
 }
 
+# force wait for istio to finish before we say we are ready
+data "local_file" "kubecontext_istio" {
+    depends_on = ["null_resource.istio"]
+    filename = ".kubecontext"
+}
+
 locals {
     kubecontext = "${trimspace(data.local_file.kubecontext.content)}"
 }

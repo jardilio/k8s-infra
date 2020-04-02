@@ -21,4 +21,21 @@ resource "helm_release" "dashboard" {
       name = "enableSkipLogin"
       value = "true"
     }
+
+    # TODO: reactivate TLS with istio-gateway
+
+    set {
+      name = "service.internalPort"
+      value = "8080"
+    }
+
+    set {
+      name = "service.externalPort"
+      value = "8080"
+    }
+
+    set {
+      name = "enableInsecureLogin"
+      value = "true"
+    }
 }

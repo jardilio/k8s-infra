@@ -67,6 +67,7 @@ resource "kubernetes_service" "generic_web" {
   depends_on = ["kubernetes_deployment.generic_web"]
   metadata {
     name = "${var.app_name}"
+    namespace = "${var.namespace}"
   }
   spec {
     selector = {

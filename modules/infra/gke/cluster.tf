@@ -1,7 +1,8 @@
 resource "google_container_cluster" "cluster" {
   name = "${var.name}"
   location = "${var.region}"
-  additional_zones = "${var.zones}"
+  # additional_zones = "${var.zones}"
+  node_locations = "${var.zones}"
   min_master_version = "${var.kubernetes_version}"
 
   remove_default_node_pool = true

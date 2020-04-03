@@ -1,3 +1,10 @@
+locals {
+    tags = merge(var.tags, {
+        Name = "${var.name}"
+        Cluster = "${var.name}"
+    })
+}
+
 variable "tags" {
     type = "map"
     default = {}

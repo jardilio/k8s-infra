@@ -7,7 +7,7 @@ resource "aws_vpc" "network" {
   cidr_block = "${var.cidr}"
   tags = "${
     merge(
-        var.tags,
+        local.tags,
         map("kubernetes.io/cluster/${var.name}", "shared")
     )
   }"
@@ -27,7 +27,7 @@ resource "aws_subnet" "network_public" {
   vpc_id = "${aws_vpc.network.id}"
   tags = "${
     merge(
-        var.tags,
+        local.tags,
         map("kubernetes.io/cluster/${var.name}", "shared")
     )
   }"
@@ -40,7 +40,7 @@ resource "aws_subnet" "network_private" {
   vpc_id = "${aws_vpc.network.id}"
   tags = "${
     merge(
-        var.tags,
+        local.tags,
         map("kubernetes.io/cluster/${var.name}", "shared")
     )
   }"
@@ -48,7 +48,7 @@ resource "aws_subnet" "network_private" {
 
 resource "aws_internet_gateway" "network" {
   vpc_id = "${aws_vpc.network.id}"
-  tags = "${var.tags}"
+  tags = "${local.tags}"
 }
 
 resource "aws_route_table" "public" {
@@ -57,14 +57,14 @@ resource "aws_route_table" "public" {
     cidr_block = "0.0.0.0/0"
     gateway_id = "${aws_internet_gateway.network.id}"
   }
-  tags = "${merge(var.tags, map("Name", "${var.name}-public"))}"
+  tags = local.tags
 }
 
 resource "aws_route_table_association" "public" {
   count = "${length(var.zones)}"
   subnet_id = "${element(aws_subnet.network_public.*.id, count.index)}"
   route_table_id = "${aws_route_table.public.id}"
-  # tags = "${merge(var.tags, map("Name", "${var.name}-public"))}"
+  # tags = local.tags
 }
 
 resource "aws_route_table" "private" {
@@ -73,12 +73,12 @@ resource "aws_route_table" "private" {
     cidr_block = "0.0.0.0/0"
     nat_gateway_id = "${aws_internet_gateway.network.id}"
   }
-  # tags = "${merge(var.tags, map("Name", "${var.name}-private"))}"
+  # tags = local.tags
 }
 
 resource "aws_route_table_association" "private" {
   count = "${length(var.zones)}"
   subnet_id = "${element(aws_subnet.network_private.*.id, count.index)}"
   route_table_id = "${aws_route_table.private.id}"
-  # tags = "${merge(var.tags, map("Name", "${var.name}-private"))}"
+  # tags = local.tags
 }

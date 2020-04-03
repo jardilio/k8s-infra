@@ -5,5 +5,5 @@ module "nodes" {
     instance_image = "${var.instance_image}"
     instance_type = "${var.instance_type}"
     instance_count = "${var.instance_count}"
-    tags = "${var.tags}"
+    tags = "${local.tags}"
 }

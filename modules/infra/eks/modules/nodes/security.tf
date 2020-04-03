@@ -5,7 +5,7 @@ resource "aws_security_group" "node" {
 
   tags = "${
     merge(
-        var.tags,
+        local.tags,
         map("kubernetes.io/cluster/${var.cluster}", "owned")
     )
   }"

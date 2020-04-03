@@ -2,14 +2,14 @@
 #   name = "/aws/eks/${var.name}/cluster"
 #   retention_in_days = 7
 #   kms_key_id = "${aws_kms_key.logs.arn}"
-#   tags = "${var.tags}"
+#   tags = "${local.tags}"
 # }
 
 # resource "aws_kms_key" "logs" {
 #   description = "KMS key for ${var.name} cluster"
 #   deletion_window_in_days = 10
 #   enable_key_rotation = true
-#   tags = "${var.tags}"
+#   tags = "${local.tags}"
 # }
 
 # resource "aws_flow_log" "logs" {
@@ -17,7 +17,7 @@
 #   log_destination = "${aws_cloudwatch_log_group.logs.arn}"
 #   traffic_type = "ALL"
 #   vpc_id = "${aws_vpc.network.id}"
-#   # tags = "${var.tags}"
+#   # tags = "${local.tags}"
 # }
 
 # resource "aws_iam_role" "logs" {
@@ -37,7 +37,7 @@
 #   ]
 # }
 # EOF
-#   tags = "${var.tags}"
+#   tags = "${local.tags}"
 # }
 
 # resource "aws_iam_role_policy" "logs" {

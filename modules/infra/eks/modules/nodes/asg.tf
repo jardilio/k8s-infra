@@ -75,6 +75,6 @@ resource "aws_eks_node_group" "asg" {
     aws_iam_role_policy_attachment.role_AmazonEC2ContainerRegistryReadOnly,
   ]
 
-  tags = "${merge(var.tags, map("Name", "${var.cluster}-${var.name}-worker-node-asg"))}"
+  tags = local.tags
 }
 

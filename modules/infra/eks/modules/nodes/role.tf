@@ -15,7 +15,7 @@ resource "aws_iam_role" "role" {
   ]
 }
 POLICY
-    tags = "${var.tags}"
+    tags = "${local.tags}"
 }
 
 resource "aws_iam_role_policy_attachment" "role_AmazonEKSWorkerNodePolicy" {
@@ -36,5 +36,5 @@ resource "aws_iam_role_policy_attachment" "role_AmazonEC2ContainerRegistryReadOn
 # resource "aws_iam_instance_profile" "role" {
 #   name = "${local.identifier}"
 #   role = "${aws_iam_role.role.name}"
-#   # tags = "${var.tags}"
+#   # tags = "${local.tags}"
 # }

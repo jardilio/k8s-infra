@@ -3,6 +3,10 @@ locals {
     node_selector_vale = "${var.name}"
     node_selector = "${local.node_selector_name}=${local.node_selector_vale}"
     identifier = "${var.cluster}-${local.node_selector_name}-${var.name}"
+    tags = merge(var.tags, {
+        Name = "${local.identifier}"
+        ClusterNodeGroup = "${local.identifier}"
+    })
 }
 
 variable "name" {

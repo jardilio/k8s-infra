@@ -47,7 +47,7 @@ resource "aws_eks_cluster" "cluster" {
     "aws_subnet.network_public"
   ]
 
-  tags = "${var.tags}"
+  tags = "${local.tags}"
 }
 
 resource "aws_iam_role" "cluster" {
@@ -66,7 +66,7 @@ resource "aws_iam_role" "cluster" {
   ]
 }
 POLICY
-  tags = "${var.tags}"
+  tags = "${local.tags}"
 }
 
 resource "aws_iam_role_policy_attachment" "cluster_AmazonEKSClusterPolicy" {
@@ -83,7 +83,7 @@ resource "aws_security_group" "cluster" {
   name = "${var.name}-cluster"
   description = "The default security group for the ${var.name} cluster"
   vpc_id = "${aws_vpc.network.id}"
-  tags = "${var.tags}"
+  tags = "${local.tags}"
 }
 
 resource "aws_security_group_rule" "cluster_egress" {

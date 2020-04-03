@@ -11,5 +11,17 @@ This requires the terraform gcp provider to authethenticate with GCP:
 
 The environment value `GOOGLE_APPLICATION_CREDENTIALS` should be accessible in the context that terraform is running. If you create a`.env` file at the root of this project and define it there, it will be loaded by the container automatically and the file will NOT be checked into SCM via `.gitignore`. The containers entrypoint will also read this value and make it avaiable to the gcloud cli in the console.
 
+The user account running Terraform for this module will required the following roles (to verify, may be able to tighten this up):
+
+* App Engine Admin
+* App Engine Deployer
+* App Engine Service Admin
+* Compute Storage Admin
+* Kubernetes Engine Admin
+* Deployment Manager Editor
+* Storage Admin
+* Storage Object Admin
+* Owner
+
 * [inputs](./variables.tf)
 * [outputs](./outputs.tf)

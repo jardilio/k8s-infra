@@ -13,12 +13,12 @@ resource "aws_vpc" "network" {
   }"
 }
 
-resource "aws_flow_log" "network" {
-  iam_role_arn = "${aws_iam_role.logs.arn}"
-  log_destination = "${aws_cloudwatch_log_group.logs.arn}"
-  traffic_type = "ALL"
-  vpc_id = "${aws_vpc.network.id}"
-}
+# resource "aws_flow_log" "network" {
+#   iam_role_arn = "${aws_iam_role.logs.arn}"
+#   log_destination = "${aws_cloudwatch_log_group.logs.arn}"
+#   traffic_type = "ALL"
+#   vpc_id = "${aws_vpc.network.id}"
+# }
 
 resource "aws_subnet" "network_public" {
   count = "${length(var.zones)}"

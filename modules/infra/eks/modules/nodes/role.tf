@@ -33,8 +33,8 @@ resource "aws_iam_role_policy_attachment" "role_AmazonEC2ContainerRegistryReadOn
   role       = "${aws_iam_role.role.name}"
 }
 
-resource "aws_iam_instance_profile" "role" {
-  name = "${local.identifier}"
-  role = "${aws_iam_role.role.name}"
-  # tags = "${var.tags}"
-}
+# resource "aws_iam_instance_profile" "role" {
+#   name = "${local.identifier}"
+#   role = "${aws_iam_role.role.name}"
+#   # tags = "${var.tags}"
+# }

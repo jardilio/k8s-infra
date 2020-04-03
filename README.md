@@ -30,7 +30,7 @@ that will link to the appropriate terraform modules. Examples were included for 
 * Select your cluster - Optional if you set environment variable `CLUSTER`
 * Deploy your cluster - `terraform apply -auto-approve`
 * Get the address of your ingress gateways:
-    * Dashboard - `DASHBOARD_GATEWAY=$(kubectl get service kubernetes-dashboard -n kube-system -o jsonpath='{.status.loadBalancer.ingress[0].*}'`
+    * Dashboard - `DASHBOARD_GATEWAY=$(kubectl get service kubernetes-dashboard -n kube-system -o jsonpath='{.status.loadBalancer.ingress[0].*}')`
     * Istio - `ISTIO_GATEWAY=$(kubectl get service istio-ingressgateway -n istio-system -o jsonpath='{.status.loadBalancer.ingress[0].*}')`
 
 By default, the following services should be available:
@@ -54,9 +54,9 @@ Additional docker-compose services are created for automation, including:
 ## Infra
 
 * [local](./modules/infra/local) - Support for local kubectl access to local or remote cluster working, tested with Docker-Desktop running Kubernetes 1.15.
-* [gke](./modules/infra/gke) - Initial support for provisining simple cluster and worker nodes is complete. Pending more structured networking constraints and isolation setmentation.
-* [eks](./modules/infra/eks) - WIP - Code is started, not complete or tested.
-* [aks](./clmodules/infrausters/aks) - Not Started
+* [gke](./modules/infra/gke) - Initial support for provisining simple cluster and worker nodes is complete. Pending more structured networking constraints and isolation segmentation.
+* [eks](./modules/infra/eks) - Initial support for provisining simple cluster and worker nodes is complete. Pending more structured networking constraints, isolation segmentation, and logging.
+* [aks](./modules/infrausters/aks) - Not Started
 
 ## Platform
 

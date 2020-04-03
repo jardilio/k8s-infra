@@ -6,7 +6,6 @@ module "infra" {
 module "platform" {
     source = "../../modules/platform"
     kubeinit = "${module.infra.kubeinit}"
-    domain = "localhost"
 }
 
 module "stack" {

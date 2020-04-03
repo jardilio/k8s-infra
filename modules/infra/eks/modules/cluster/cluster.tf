@@ -30,7 +30,7 @@ KUBECONFIG
 resource "aws_eks_cluster" "cluster" {
   name = "${var.name}"
   role_arn = "${aws_iam_role.cluster.arn}"
-  enabled_cluster_log_types = ["api", "audit"]
+  # enabled_cluster_log_types = ["api", "audit"]
   version = "${var.kubernetes}"
 
   vpc_config {
@@ -43,7 +43,7 @@ resource "aws_eks_cluster" "cluster" {
   depends_on = [
     "aws_iam_role_policy_attachment.cluster_AmazonEKSClusterPolicy",
     "aws_iam_role_policy_attachment.cluster_AmazonEKSServicePolicy",
-    "aws_cloudwatch_log_group.logs",
+    # "aws_cloudwatch_log_group.logs",
     "aws_subnet.network_public"
   ]
 

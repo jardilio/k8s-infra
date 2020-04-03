@@ -45,7 +45,7 @@ variable "cluster_instance_type" {
 
 variable "cluster_instance_count" {
     type = "string"
-    default = 1
+    default = ""
     description = "The number of worker nodes to run"
 }
 
@@ -62,5 +62,6 @@ variable "cluster_instance_count" {
 
 # variable "pci_isoseg_instance_count" {
 #     type = "string"
+#     default = ""
 #     description = "The number of worker nodes to run"
 # }

@@ -11,13 +11,22 @@ resource "aws_security_group" "node" {
   }"
 }
 
+resource "aws_security_group_rule" "egress-sg" {
+  description = "Default egress for ${var.name} within security group"
+  from_port = 0
+  protocol = "-1"
+  security_group_id = "${aws_security_group.node.id}"
+  source_security_group_id = "${aws_security_group.node.id}"
+  to_port = 65535
+  type = "egress"
+}
+
 resource "aws_security_group_rule" "egress-default" {
   description = "Default egress for ${var.name} nodes in the ${var.name} cluster"
   from_port = 0
   protocol = "-1"
   security_group_id = "${aws_security_group.node.id}"
-  cidr_blocks = ["${var.private ? "" : "0.0.0.0/0"}"]
-  source_security_group_id = "${aws_security_group.node.id}"
+  cidr_blocks = ["${var.private ? local.cluster_cidr : "0.0.0.0/0"}"]
   to_port = 65535
   type = "egress"
 }

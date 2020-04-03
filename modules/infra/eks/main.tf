@@ -1,9 +1,3 @@
-module "k8s" {
-    source = "../k8s"
-    kubeinit = "${module.cluster.config}"
-    default_service_type = "LoadBalancer"
-}
-
 module "cluster" {
     source = "./modules/cluster"
     name = "${var.name}"

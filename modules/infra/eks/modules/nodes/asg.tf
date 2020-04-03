@@ -78,3 +78,44 @@ resource "aws_eks_node_group" "asg" {
   tags = local.tags
 }
 
+data "aws_autoscaling_group" "asg" {
+  name = "${aws_eks_node_group.asg.resources.0.autoscaling_groups.0.name}"
+}
+
+data "aws_region" "current" {}
+
+data "aws_instances" "asg" {
+  filter {
+    name = "tag:aws:autoscaling:groupName"
+    values = ["${data.aws_autoscaling_group.asg.name}"]
+  } 
+}
+
+# NOTE: aws_eks_node_group does not propogate tags...so we have to do it manually
+resource "null_resource" "asg_tags" {
+  count = length(keys(local.tags))
+
+  triggers = {
+    ASG = data.aws_autoscaling_group.asg.name
+    LC = data.aws_autoscaling_group.asg.launch_configuration
+    REGION = data.aws_region.current.name
+    TAGS = jsonencode(local.tags)
+  }
+  
+  provisioner "local-exec" {
+    environment = {
+      ASG = data.aws_autoscaling_group.asg.name
+      AWS_DEFAULT_REGION = data.aws_region.current.name
+      TAG_KEY = element(keys(local.tags), count.index)
+      TAG_VALUE = local.tags[element(keys(local.tags), count.index)]
+      EC2_INSTANCES = join(" ", data.aws_instances.asg.ids)
+    }
+    command = <<EOT
+      # update the auto-scale-group configuration for future instances
+      aws autoscaling create-or-update-tags --tags "ResourceId=$ASG,ResourceType=auto-scaling-group,Key=$TAG_KEY,Value=$TAG_VALUE,PropagateAtLaunch=true"
+
+      # update existing instances that were created before above update
+      aws ec2 create-tags --resources $EC2_INSTANCES --tags "Key=$TAG_KEY,Value=$TAG_VALUE"
+    EOT
+  }
+}

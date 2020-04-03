@@ -30,7 +30,7 @@ variable "nodegroups" {
     default = [
         {
             name = "default"
-            type = "n1-standard-1"
+            type = "n1-standard-2"
             count = 1 #NOTE: this is per zone NOT total
         }
     ]

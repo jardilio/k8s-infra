@@ -2,7 +2,7 @@
 
 locals {
   istio_version = "1.5.1"
-  istio_bookinfo_enabled = 0
+  istio_bookinfo_enabled = 1
 }
 
 data "template_file" "istio_ops" {

@@ -25,3 +25,16 @@ variable "max_instances" {
     default = 3
     description = "The maximum number of instances for HPA"
 }
+
+variable "url_prefix" {
+    default = "/"
+    description = "The URL prefix where this app will receive routes from"
+}
+
+variable "gateway" {
+    description = "The gateway to attach virtual service to"
+}
+
+variable depend_on {
+    default = []
+}

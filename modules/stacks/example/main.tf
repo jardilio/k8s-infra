@@ -1,55 +1,71 @@
 
-# resource "kubernetes_namespace" "example" {
-#     # hack to force wait for cluster to finish initialize and have istio ready before proceeding
-#     depends_on = [var.kubecontext]
-#     metadata {
-#         name = "example"
-#         labels = {
-#             istio-injection = "enabled"
-#         }
-#     }
-# }
+# Create a dedicated namespace for all resources in this stack to be linked to
+resource "kubernetes_namespace" "example" {
+    # hack to force wait for cluster to finish initialize and have istio ready before proceeding
+    depends_on = [var.depend_on]
+    metadata {
+        name = "${var.namespace}"
+        labels = {
+            istio-injection = "enabled"
+        }
+    }
+}
 
-# module "nginx" {
-#     source = "../../apps/generic-web"
-#     namespace = "${kubernetes_namespace.example.metadata.0.name}"
-#     app_name = "nginx"
-#     app_image = "nginx"
-#     app_version = "1.14.2"
-#     min_instances = 1
-#     max_instances = 1
-# }
+# Load our Istio template for the gateway we will create for this stack
+data "template_file" "example" {
+  template = "${file("${path.module}/networking.yaml")}"
+  vars = {
+    namespace = "${var.namespace}"
+    gateway = "${var.namespace}"
+  }
+}
 
-# data "template_file" "example" {
-#   template = "${file("${path.module}/networking.yaml")}"
-#   vars = {
-#     # Place any variables here for interpolation in the template between clusters
-#   }
-# }
+# Deploy our Istio gateway from the above template
+resource "null_resource" "example" {
+    triggers = {
+        template = "${data.template_file.example.rendered}"
+    }
 
-# resource "null_resource" "example" {
+    provisioner "local-exec" {
+        environment = {
+            TEMPLATE = "${data.template_file.example.rendered}"
+        }
+        command = "echo \"$TEMPLATE\" | kubectl apply -f -"
+    }
+    provisioner "local-exec" {
+        environment = {
+            TEMPLATE = "${data.template_file.example.rendered}"
+        }
+        when = "destroy"
+        on_failure = "continue"
+        command = "echo \"$TEMPLATE\" | kubectl delete -f -"
+    }
+}
 
-#     depends_on = [
-#         "module.nginx",
-#         "data.template_file.example"
-#     ]
+# Deploy all our applications and configurations associated with this stack
 
-#     triggers = {
-#         template = "${data.template_file.example.rendered}"
-#     }
+module "foo" {
+    depend_on = [null_resource.example]
+    source = "../../apps/generic-web"
+    namespace = "${kubernetes_namespace.example.metadata.0.name}"
+    app_name = "foo"
+    app_image = "nginx"
+    app_version = "${var.app_version}"
+    min_instances = 1
+    max_instances = 1
+    gateway = "${var.namespace}"
+    url_prefix = "/${var.namespace}/foo/"
+}
 
-#     provisioner "local-exec" {
-#         environment = {
-#             TEMPLATE = "${data.template_file.example.rendered}"
-#         }
-#         command = "echo \"$TEMPLATE\" | kubectl apply -f -"
-#     }
-#     provisioner "local-exec" {
-#         environment = {
-#             TEMPLATE = "${data.template_file.example.rendered}"
-#         }
-#         when = "destroy"
-#         on_failure = "continue"
-#         command = "echo \"$TEMPLATE\" | kubectl delete -f -"
-#     }
-# }
+module "bar" {
+    depend_on = [null_resource.example]
+    source = "../../apps/generic-web"
+    namespace = "${kubernetes_namespace.example.metadata.0.name}"
+    app_name = "bar"
+    app_image = "nginx"
+    app_version = "${var.app_version}"
+    min_instances = 1
+    max_instances = 1
+    gateway = "${var.namespace}"
+    url_prefix = "/${var.namespace}/bar/"
+}

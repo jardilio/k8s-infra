@@ -66,4 +66,10 @@ Additional docker-compose services are created for automation, including:
 
 ## Stacks/Apps
 
-WIP - This is just setting up some example stacks of applications that can be deployed to the cluster. A "stack" is just a composition of a set of applications that are configured as a whole. The same "stack" may be deployed to several different environments which slightly different configurations (ie versions of app services or scaling of those services). 
+A "stack" in this context is just a collection of related application services which may comprise a complete "product". The "apps" in this context are the individual services that will be deployed in a given stack. You would likely deploy the same "stack" of applications to multiple environments (ie dev, qa, uat, prod...) with slightly different configurations, including applicaton versions and scaling properties.
+
+An [example stack](./modules/stack/example) is provided which will:
+
+* Create a namespace for all resources in the stack
+* Create a gateway for ingress from the istio gateway
+* Create 2 example applications `foo` and `bar` to receive http traffic

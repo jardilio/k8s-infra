@@ -1,0 +1,34 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: ${app_name}
+  namespace: ${namespace}
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - ${gateway}
+  http:
+  - name: ${app_name}
+    match:
+    - uri:
+        prefix: "${url_prefix}"
+    rewrite: 
+      uri: "/"
+    route:
+    - destination:
+        host: ${app_name}
+        port:
+          number: 80
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: ${app_name}
+  namespace: ${namespace}
+spec:
+  host: ${app_name}
+  trafficPolicy:
+    tls:
+      mode: DISABLE

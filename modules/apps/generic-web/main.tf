@@ -38,9 +38,9 @@ resource "kubernetes_deployment" "generic_web" {
             container_port = 80
           }
 
-          # port {
-          #   container_port = 443
-          # }
+          port {
+            container_port = 443
+          }
 
           resources {
             requests {
@@ -83,18 +83,18 @@ resource "kubernetes_service" "generic_web" {
       target_port = 80
     }
     
-    # port {
-    #   name = "https"
-    #   port = 443
-    #   target_port = 443
-    # }
+    port {
+      name = "https"
+      port = 443
+      target_port = 443
+    }
 
-    type = "LoadBalancer"
+    type = "ClusterIP"
   }
 }
 
 resource "kubernetes_horizontal_pod_autoscaler" "generic_web" {
-  # depends_on = ["kubernetes_deployment.generic_web"]
+  depends_on = ["kubernetes_deployment.generic_web"]
 
   metadata {
     name = "${var.app_name}"
@@ -110,4 +110,35 @@ resource "kubernetes_horizontal_pod_autoscaler" "generic_web" {
       name = "${var.app_name}-${var.app_version}"
     }
   }
+}
+
+data "template_file" "generic_web" {
+  template = "${file("${path.module}/networking.yaml")}"
+  vars = {
+    namespace = "${var.namespace}"
+    gateway = "${var.gateway}"
+    url_prefix = "${var.url_prefix}"
+    app_name = "${var.app_name}"
+  }
+}
+
+resource "null_resource" "generic_web" {
+    triggers = {
+        template = "${data.template_file.generic_web.rendered}"
+    }
+
+    provisioner "local-exec" {
+        environment = {
+            TEMPLATE = "${data.template_file.generic_web.rendered}"
+        }
+        command = "echo \"$TEMPLATE\" | kubectl apply -f -"
+    }
+    provisioner "local-exec" {
+        environment = {
+            TEMPLATE = "${data.template_file.generic_web.rendered}"
+        }
+        when = "destroy"
+        on_failure = "continue"
+        command = "echo \"$TEMPLATE\" | kubectl delete -f -"
+    }
 }
